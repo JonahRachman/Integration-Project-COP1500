@@ -1,4 +1,4 @@
-# Jonah Rachman
+"""__author__ = Jonah Rachman"""
 
 # I import the requests module set up in my PyCharm interpreter
 # Hit the gear icon in the top right
@@ -55,6 +55,9 @@ num **= 1
 num //= 10
 # Will print 2.0 after all reassignment operations
 print(num)
+print("")
+print("")
+print("** SPRINT REQUIREMENTS ** \n \n")
 
 
 # This program takes in an address given by the user
@@ -62,8 +65,13 @@ print(num)
 # Passes the information to an API made by OpenWeatherMap
 # and returns the current weather information
 # depending on the users desired data
-# I define the function get_weather with the parameter lat and lon
 def get_weather(_lat, _lon):
+    """
+    This function uses the latitude and longitude given by the Mapbox API to
+    request the current weather data from that location
+    :param _lat: The latitude of the location the user entered
+    :param _lon: The longitude of the location the user entered
+    """
     # I define a few variable to make a request to OpenWeather using
     # their API and my assigned API key
     api_key = "685650d422a3808bcfec9f49e086ff48"
@@ -96,9 +104,10 @@ def get_weather(_lat, _lon):
               "\n6. Temp_Max "
               "\n7. Visibility "
               "\n8. Wind_Speed")
-        requested_data = input("Please enter the weather data you want"
-                               " using the numbers separated by a space"
-                               " Ex.(3 4 5): \n").split()
+        requested_data = input("\nPlease enter the weather data you want"
+                               " using their numbers separated by a space"
+                               " Ex.(3 4 5)\nFor only a general description,"
+                               " enter nothing: \n").split()
         if "1" in requested_data:
             print("Temperature: " + str(temperature) + " F°")
         if "2" in requested_data:
@@ -123,52 +132,64 @@ def get_weather(_lat, _lon):
         print("City not found")
 
 
-user_loop = True
-while user_loop:
-    search_text = ""
-    address = (
-        input("\nPlease enter an address (Fort Meyers Florida USA): ")).split()
+def main():
+    """
+        This function uses the latitude and longitude given by the Mapbox API
+         to request the current weather data from that location
+        """
+    user_loop = True
+    while user_loop:
+        search_text = ""
+        address = (
+            input("\nPlease enter a location "
+                  " (be specific): ")).split()
+        if address:
+            for i in address:
+                search_text += (i + "%20")
 
-    for i in address:
-        search_text += (i + "%20")
-
-    search_text = search_text[:-3]
-    geo_url = f"https://api.mapbox.com/geocoding/v5/mapbox.places/" \
-              f"{search_text}.json?access_token=pk" \
-              f".eyJ1Ijoiam9uYWgtcmFjaG1hbiIsImEiOiJjbGR1dmtrdT" \
-              f"kwOWphM3JycXY1djl4MGlrIn0.e_8d_18Vpu76QYvnrRHMfw"
-    geo_response = requests.get(geo_url)
-    location_data = geo_response.json()
-
-    if geo_response.status_code != "404":
-        try:
-            latitude = (location_data["features"][2]["center"][1])
-            longitude = (location_data["features"][2]["center"][0])
-            print("\nAddress found:",
-                  location_data["features"][2]["place_name"] + "\n")
-        except IndexError:
-            print("\nAddress not found")
+            search_text = search_text[:-3]
+            geo_url = f"https://api.mapbox.com/geocoding/v5/mapbox.places/" \
+                      f"{search_text}.json?access_token=pk" \
+                      f".eyJ1Ijoiam9uYWgtcmFjaG1hbiIsImEiOiJjbGR1dmtrdT" \
+                      f"kwOWphM3JycXY1djl4MGlrIn0.e_8d_18Vpu76QYvnrRHMfw"
+            geo_response = requests.get(geo_url)
+            location_data = geo_response.json()
+            if geo_response.status_code != "404":
+                try:
+                    latitude = (location_data["features"][2]["center"][1])
+                    longitude = (location_data["features"][2]["center"][0])
+                    print("\nAddress found:",
+                          location_data["features"][2]["place_name"] + "\n")
+                except IndexError:
+                    print("\nAddress not found")
+                    latitude = "null"
+                    longitude = "null"
+            else:
+                print("API Error, check mapbox account")
             try:
-                del latitude
-                del longitude
-            except NameError:
+                # I think this warning is just incorrect
+                get_weather(latitude, longitude)
+            except KeyError:
                 pass
-    else:
-        print("API Error, check mapbox account")
-    # needed for catching a rare error involving blank inputs
-    try:
-        latitude
-        longitude
-        get_weather(latitude, longitude)
-    except NameError:
-        pass
-    user_loop = input(
-        "\nWould you like to enter another address (Yes or No)?\n")
-    if user_loop.lower() == "yes" or user_loop.lower() == "y":
-        user_loop = True
-    else:
-        user_loop = False
+        else:
+            print("\n You did not enter anything!")
+        correct_input = False
+        while not correct_input:
+            user_loop = input(
+                "\nWould you like to enter another address (Yes or No)?\n")
+            if user_loop.lower() == "yes" or user_loop.lower() == "y":
+                user_loop = True
+                correct_input = True
+            elif user_loop.lower() == "no" or user_loop.lower() == "n":
+                user_loop = False
+                correct_input = True
+            else:
+                print("That was not a correct input!")
+                correct_input = False
 
+
+if __name__ == "__main__":
+    main()
 # Future Goals for this program
 # Allow user to input city and country
 # without having to convert to lat and lon *COMPLETED
